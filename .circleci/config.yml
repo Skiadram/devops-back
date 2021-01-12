@@ -48,6 +48,3 @@ workflows:
       - test:
           requires:
             - build
-      - database:
-          requires:
-            - build
