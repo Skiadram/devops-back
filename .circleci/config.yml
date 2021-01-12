@@ -8,7 +8,6 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
       - run:
-          name: Install dependencies in a python venv
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -18,26 +17,10 @@ jobs:
           paths: 
             - "venv"
   test:
-    docker:
-      - image: cimg/node:14.10.1
-    steps:
-      - checkout
-      - restore_cache:
-          key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
-      - run: 
-          name: Waiting for postgresql
-          command : dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run: 
-          name: Launching tests
-          command: |
-            . venv/bin/activate
-            flask db upgrade
-            flask test
-  database:
-    docker:
+    docker: 
       - image: circleci/python:3.9-buster-node-browsers
         environment:
-          DATABASE_URL: postgresql://myUsr:somePwd@localhost:5432/myUsr
+          DATABASE_URL: postgresql://myUsr:somePwd@localhost:5432/psdb
           FLASK_APP: autoapp.py
           CONDUIT_SECRET: 'something'
           FLASK_DEBUG: 1
@@ -46,6 +29,18 @@ jobs:
           POSTGRES_USER: myUsr
           POSTGRES_DB: psdb
           POSTGRES_PASSWORD: somePwd
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
+      - run: 
+          name: Waiting for postgresql
+          command : dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          command: |
+            . venv/bin/activate
+            flask db upgrade
+            flask test
 workflows:
   build_and_test:
     jobs:
