@@ -41,6 +41,51 @@ jobs:
             . venv/bin/activate
             flask db upgrade
             flask test
+
+  deploy_heroku:
+      docker:
+        - image: buildpack-deps:trusty
+      steps:
+        - checkout
+        - run: 
+            name: Heroku deploy
+            command: |
+              git config --global push.default matching
+              git push https://heroku:$HEROKU_API_KEY@git.heroku.com/damp-taiga-40793.git main
+
+  build_docker:
+      environment:
+        IMAGE_NAME: sukiadoramu/devops-back
+      docker:
+        - image: circleci/buildpack-deps:stretch
+      steps:
+        - checkout
+        - setup_remote_docker
+        - run: docker image build --tag $IMAGE_NAME:app .
+        - run: docker save -o image.tar $IMAGE_NAME
+        - persist_to_workspace:
+            root: .
+            paths:
+              - ./image.tar
+
+  publish_latest:
+    docker:
+      - image: circleci/buildpack-deps:stretch       
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker tag sukiadoramu/devops-back:app sukiadoramu/devops-back:$CIRCLE_BUILD_NUM
+            docker tag sukiadoramu/devops-back:app sukiadoramu/devops-back:latest
+            docker push sukiadoramu/devops-back:latest
+            docker push sukiadoramu/devops-back:$CIRCLE_BUILD_NUM
   
 
 
@@ -48,4 +93,16 @@ workflows:
   build_and_test:
     jobs:
       - build
+      - build_docker:
+          context: Docker
+          requires:
+            - build
+      - push_docker:
+          requires:
+            - build_docker
+          context: Docker
+      - deploy_heroku:
+          requires:
+            - build
+          context: heroku
 
