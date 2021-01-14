@@ -97,7 +97,7 @@ workflows:
           context: Docker
           requires:
             - build
-      - push_docker:
+      - publish_latest:
           requires:
             - build_docker
           context: Docker
