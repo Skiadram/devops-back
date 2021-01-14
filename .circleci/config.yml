@@ -100,7 +100,7 @@ workflows:
             - build
       - publish_latest:
           requires:
-            - build_docker
+            - build_image
           context: Docker
       - deploy_heroku:
           requires:
