@@ -53,20 +53,22 @@ jobs:
               git config --global push.default matching
               git push https://heroku:$HEROKU_API_KEY@git.heroku.com/damp-taiga-40793.git main
 
-  build_docker:
-      environment:
-        IMAGE_NAME: sukiadoramu/devops-back
-      docker:
-        - image: circleci/buildpack-deps:stretch
-      steps:
-        - checkout
-        - setup_remote_docker
-        - run: docker image build --tag $IMAGE_NAME:app .
-        - run: docker save -o image.tar $IMAGE_NAME
-        - persist_to_workspace:
-            root: .
-            paths:
-              - ./image.tar
+  build_image:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker image
+          command: docker build -t sukiadoramu/my-awesome-ci-expr:app .
+      - run:
+          name: Archive Docker image
+          command: docker save -o image.tar sukiadoramu/my-awesome-ci-expr
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
 
   publish_latest:
     docker:
@@ -93,8 +95,7 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - build_docker:
-          context: Docker
+      - build_image:
           requires:
             - build
       - publish_latest:
@@ -104,5 +105,4 @@ workflows:
       - deploy_heroku:
           requires:
             - build
-          context: heroku
 
