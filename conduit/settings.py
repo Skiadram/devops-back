@@ -30,8 +30,6 @@ class Config(object):
         'https://0.0.0.0:' + os.environ.get('PORT', '8080'),
         'https://damp-taiga-40793.herokuapp.com/api/articles',
         'https://damp-taiga-40793.herokuapp.com/',
-        'http://0.0.0.0:5432',
-        'http://localhost:5432',
     ]
     JWT_HEADER_TYPE = 'Token'
 
