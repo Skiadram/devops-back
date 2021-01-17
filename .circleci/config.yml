@@ -104,4 +104,7 @@ workflows:
       - deploy_heroku:
           requires:
             - build
+      - test:
+          requires:
+            - build
 
