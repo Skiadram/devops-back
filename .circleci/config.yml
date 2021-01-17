@@ -24,7 +24,7 @@ jobs:
           FLASK_APP: autoapp.py
           CONDUIT_SECRET: 'something'
           FLASK_DEBUG: 1
-      - image: circleci/postgres:9.6.2-alpine
+      - image: circleci/postgres:9.5.19-alpine
         environment:
           POSTGRES_USER: myUsr
           POSTGRES_DB: psdb
