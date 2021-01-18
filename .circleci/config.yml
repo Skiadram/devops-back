@@ -20,7 +20,7 @@ jobs:
     docker: 
       - image: circleci/python:3.9-buster-node-browsers
         environment:
-          DATABASE_URL: postgresql://myUsr:somePwd@localhost:5432/psdb
+          DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB
           FLASK_APP: autoapp.py
           CONDUIT_SECRET: 'something'
           FLASK_DEBUG: 1
