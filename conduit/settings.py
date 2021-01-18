@@ -26,6 +26,7 @@ class Config(object):
         'http://0.0.0.0:4000',
         'http://localhost:4000',
         'https://devops-front.netlify.app',
+        'http://devops-front.netlify.app',
         'http://0.0.0.0:8080',
         'https://0.0.0.0:8080',
         'https://damp-taiga-40793.herokuapp.com/api/articles',
